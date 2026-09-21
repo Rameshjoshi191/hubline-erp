@@ -1,7 +1,6 @@
-[README.md](https://github.com/user-attachments/files/32431388/README.md)
 # HUB LINE ERP — NVOCC operations, agents & finance
 
-A web-based ERP for an NVOCC / consolidator, with a modern interface (icon sidebar, dashboard charts, global search, light and dark themes, works on phones and tablets). Phase 1 covers:
+A web-based ERP for an NVOCC / consolidator, with a modern interface (icon sidebar, dashboard charts, global search, light and dark themes, works on phones and tablets). Version 0.2 covers:
 
 | Module | What it does |
 |---|---|
@@ -10,12 +9,20 @@ A web-based ERP for an NVOCC / consolidator, with a modern interface (icon sideb
 | **Container inventory** | Every box, its status, location and free-time (detention) clock, as-of-any-date. Event-based movement log, ISO 6346 check-digit validation, bulk add / bulk movement, **daily inventory report** (summary by type and location, movements, detention alerts, idle empties) with Excel export. |
 | **Agents & agency agreements** | Agent master, agreements with validity, territory, exclusivity, payment terms, credit limit, editable clause text (standard clause set included), renewals, printable agreement. |
 | **Agency commission** | Rules per agreement (per TEU / container / CBM / BL, % of freight, % of profit; by port pair and cargo type; min / max). Statements are previewed, adjusted, posted to the agent's account, and can be cancelled. |
+| **Container enquiry & Excel updates** | One search box for container numbers (paste a list), booking / HBL / MBL, vessel or a place; a journey view for every box. The inventory and movements can be updated by uploading an Excel / CSV file: columns, container types and movement words are understood automatically, a preview shows exactly what will change, and re-loading the same file changes nothing. |
+| **Agent portal** | Role *Agent (external)* tied to an agent company and a list of locations: agents update container movements at their own locations, view their own shipments and edit / complete their own bills of lading until sailing (edits are flagged for review), and send booking requests. |
+| **Bills of lading tab** | Search, view, edit, download (PDF, Excel, combined PDF) and share every BL; filters for details missing and agent-edited. |
+| **Vessel schedules** | Load schedules from Excel / CSV or from a carrier's web link (saved links, daily auto-refresh), date-change alerts that update bookings and master BLs in one click (or automatically), and a sailing picker on bookings and master BLs. |
+| **MRG** | Month-wise freight rate, slot cost and margin per lane and container type, committed slots against shipped boxes, roll-forward from the previous month, fill from the tariff book, Excel load, year matrix. |
+| **Sharing & automation** | Share any list as Excel or PDF, by the device's share sheet, or by e-mail (SMTP); action centre on the dashboard; the daily inventory report e-mailed to your list. |
 | **Customers, agents, vendors, carriers** | One party master with role flags, credit terms, tax ids. |
 | **Rates / tariffs** | Sell and buy rates by route, cargo type, container type and validity. "Fill from tariff" on invoices. |
 | **Finance** | Invoices, debit notes, credit notes, vendor bills; receipts and payments with allocation to documents; netting (e.g. agent debit note against agent bill); multi-currency with base-currency reporting; shipment profit. |
 | **Statement of account (SOA)** | Full-ledger (opening balance + running balance) or open-item statements for any customer, agent, vendor or carrier, with ageing. Print or export to Excel. |
 | **Reports** | Ageing, shipment register and profit, container inventory, dashboard. |
-| **Administration** | Users and six roles (Admin, Management read-only, Operations, Documentation, Accounts, Sales), company settings, ports, container types, charge codes, currencies and rates, full audit log. |
+| **Administration** | Users and seven roles (Admin, Management read-only, Operations, Documentation, Accounts, Sales, and the external Agent), company settings, ports, container types, charge codes, currencies and rates, full audit log. |
+
+**Documentation:** the full **[User & Administrator Guide](docs/USER_GUIDE.md)** explains setup, roles, every workflow and the accounting rules. A Word copy is in `docs/HUBLINE-ERP-User-Guide.docx`.
 
 ## Install and run
 
@@ -58,7 +65,7 @@ The demo data creates parties, three agents with agreements and commission rules
 npm test
 ```
 
-79 end-to-end checks against a throw-away database (finance and allocation rules, SOA and ageing, container events and free-time, commission maths, permissions, security headers).
+`npm test` runs about 200 end-to-end checks against throw-away databases: finance and allocation rules, SOA and ageing, container events and free time, commission maths, permissions and security headers (`test/e2e.js`), and Excel imports, enquiry, agent scoping, BLs, MRG, vessel schedules (including a local web-link server and the SSRF guard), Excel / PDF exports, e-mail attachments and dashboards (`test/features.js`).
 
 ## Configuration (environment variables)
 
@@ -72,6 +79,7 @@ npm test
 | `COOKIE_SECURE` | off | Set to `1` when served over HTTPS so the session cookie is HTTPS-only |
 | `TRUST_PROXY` | off | Set to `1` when behind a reverse proxy (nginx, Caddy, IIS) so client IPs are read from `X-Forwarded-For` |
 | `SEED_DEMO` | off | `1` = load the demo data on start if the database is empty (for throw-away demo instances only) |
+| `DISABLE_JOBS` | off | `1` = do not start the background jobs (daily e-mailed inventory report and daily refresh of saved schedule links) |
 | `DEMO_PASSWORD` | `demo1234` | Password for the demo users other than `admin` when the demo data is loaded (`ADMIN_PASSWORD` sets `admin`) |
 
 ## Hosting online
@@ -111,6 +119,7 @@ src/            server (Express 5, SQLite via better-sqlite3)
   seed-demo.js    demo data loader
 public/         single-page web app (vanilla ES modules, no build step)
 test/e2e.js     end-to-end tests
+docs/           user & administrator guide
 ```
 
 ## Roadmap ideas (not in Phase 1)
